@@ -1,2 +1,4 @@
 ieee-ai-and-ml-demystified/**
 !ieee-ai-and-ml-demystified/.gitkeep
+.venv
+.venv/**

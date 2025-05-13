@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Классификатор кошек и собак</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .upload-form {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #preview {
+            max-width: 300px;
+            margin: 20px auto;
+        }
+        .result {
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Классификатор кошек и собак</h1>
+    <div class="upload-form">
+        <h2>Загрузите изображение</h2>
+        <input type="file" id="imageInput" accept="image/*">
+        <div id="preview"></div>
+        <button id="predictBtn" disabled>Определить</button>
+    </div>
+    <div id="result" class="result"></div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const previewDiv = document.getElementById('preview');
+        const predictBtn = document.getElementById('predictBtn');
+        const resultDiv = document.getElementById('result');
+
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewDiv.innerHTML = `<img src="${e.target.result}" style="max-width: 100%;">`;
+                    predictBtn.disabled = false;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        predictBtn.addEventListener('click', function() {
+            const file = imageInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            resultDiv.innerHTML = 'Обработка...';
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultDiv.innerHTML = `Ошибка: ${data.error}`;
+                } else {
+                    resultDiv.innerHTML = `Результат: ${data.result} (уверенность: ${data.confidence})`;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `Ошибка: ${error.message}`;
+            });
+        });
+    </script>
+</body>
+</html>
+    
